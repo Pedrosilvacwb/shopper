@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=shopper
+    container_name: shopper-db
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: shopper-backend
+    environment:
+      - PORT=${PORT}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    volumes:
+      - ./api/src:/api/src
+    command: >
+      sh -c "npx prisma migrate deploy && npm run start:dev"
